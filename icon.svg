@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 배경 -->
+  <rect width="512" height="512" rx="96" fill="#f5f2ee"/>
+  <!-- 다이어리 본체 -->
+  <rect x="108" y="80" width="296" height="352" rx="20" fill="#fff" stroke="#ddd9d2" stroke-width="8"/>
+  <!-- 스파인 (제본 부분) -->
+  <rect x="108" y="80" width="48" height="352" rx="12" fill="#c4b5a5"/>
+  <!-- 링 -->
+  <circle cx="132" cy="168" r="14" fill="none" stroke="#8b7d6b" stroke-width="8"/>
+  <circle cx="132" cy="256" r="14" fill="none" stroke="#8b7d6b" stroke-width="8"/>
+  <circle cx="132" cy="344" r="14" fill="none" stroke="#8b7d6b" stroke-width="8"/>
+  <!-- 달력 그리드 -->
+  <rect x="180" y="136" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="226" y="136" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="272" y="136" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="318" y="136" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="180" y="182" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="226" y="182" width="36" height="36" rx="8" fill="#8b7d6b"/>
+  <rect x="272" y="182" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="318" y="182" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="180" y="228" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="226" y="228" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="272" y="228" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <rect x="318" y="228" width="36" height="36" rx="8" fill="#f5f2ee"/>
+  <!-- 하단 라인 -->
+  <rect x="180" y="296" width="174" height="10" rx="5" fill="#ddd9d2"/>
+  <rect x="180" y="318" width="130" height="10" rx="5" fill="#ddd9d2"/>
+  <rect x="180" y="340" width="150" height="10" rx="5" fill="#ddd9d2"/>
+  <!-- 별 장식 -->
+  <text x="400" y="100" font-size="40" fill="#8b7d6b">✦</text>
+</svg>
