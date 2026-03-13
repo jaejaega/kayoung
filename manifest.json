@@ -1,7 +1,7 @@
 {
-  "name": "나의 다이어리 2026",
-  "short_name": "다이어리",
-  "description": "나만의 개인 다이어리 — Monthly · Daily · Look · Script",
+  "name": "Little Black",
+  "short_name": "Little Black",
+  "description": "Little Black — Monthly · Daily · Look · Script",
   "start_url": "./diary-mobile.html",
   "scope": "./",
   "display": "standalone",
