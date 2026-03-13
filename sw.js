@@ -1,5 +1,5 @@
-// ✦ 나의 다이어리 2026 — Service Worker
-const CACHE = 'diary2026-v1';
+// ✦ Little Black — Service Worker
+const CACHE = 'diary2026-v2';
 const ASSETS = [
   './diary-mobile.html',
   './manifest.json',
