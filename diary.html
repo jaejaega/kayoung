@@ -666,7 +666,7 @@ function goView(v){
   document.querySelectorAll('.ntab').forEach(e=>e.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('tab-'+v).classList.add('on');
-  if(v==='monthly') renderCal();
+  if(v==='monthly'){renderCal();renderSched();}
   if(v==='daily')   renderDaily();
   if(v==='look')    renderLooks();
   if(v==='script')  renderScript();

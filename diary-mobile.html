@@ -810,7 +810,7 @@ function goView(v){
   document.getElementById('mainEl').scrollTop=0;
   // FAB only on look view
   document.getElementById('lookFab').style.display = v==='look'?'flex':'none';
-  if(v==='monthly') renderCal();
+  if(v==='monthly'){renderCal();renderSched();}
   if(v==='daily')   renderDaily();
   if(v==='look')    renderLooks();
   if(v==='script')  renderScript();
