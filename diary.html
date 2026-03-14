@@ -310,6 +310,33 @@ input[type=color]{display:none;}
 .sc-empty{color:var(--tx3);font-size:.8rem;text-align:center;padding:40px 0;line-height:2;}
 
 select{font-family:inherit;}
+
+/* ══ LOCK SCREEN ══ */
+#lockScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;}
+.lock-box{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:40px 36px;width:min(360px,90vw);text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.1);}
+.lock-icon{font-size:2.4rem;margin-bottom:12px;}
+.lock-title{font-family:'Nanum Myeongjo',serif;font-size:1.3rem;color:var(--ac);margin-bottom:6px;letter-spacing:.04em;}
+.lock-sub{font-size:.75rem;color:var(--tx3);margin-bottom:22px;line-height:1.6;white-space:pre-line;}
+.lock-inp{width:100%;padding:11px 16px;border:1px solid var(--bd2);border-radius:12px;background:var(--bg);font-size:1rem;font-family:inherit;color:var(--tx);outline:none;text-align:center;letter-spacing:.15em;margin-bottom:10px;transition:border-color .2s;}
+.lock-inp:focus{border-color:var(--ac);}
+.lock-btn{width:100%;padding:11px;border-radius:12px;background:var(--ac);color:#fff;border:none;font-size:.85rem;font-family:inherit;cursor:pointer;transition:opacity .2s;margin-bottom:8px;}
+.lock-btn:hover{opacity:.85;}
+.lock-err{font-size:.73rem;color:var(--red);min-height:1.3em;margin-bottom:6px;}
+.lock-hint{font-size:.68rem;color:var(--tx3);line-height:1.5;}
+
+/* ══ MONTHLY SCHEDULE ══ */
+.sched-wrap{margin-top:20px;}
+.sched-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;}
+.sched-item{display:flex;align-items:center;gap:7px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:7px 10px;transition:border-color .2s;}
+.sched-item:hover{border-color:var(--ac2);}
+.sched-date-sel{border:1px solid var(--bd2);border-radius:7px;background:var(--bg2);font-size:.72rem;font-family:inherit;color:var(--tx);padding:3px 6px;outline:none;cursor:pointer;flex-shrink:0;}
+.sched-time-inp{border:1px solid var(--bd2);border-radius:7px;background:transparent;font-size:.72rem;font-family:inherit;color:var(--tx);padding:3px 5px;outline:none;width:90px;flex-shrink:0;text-align:center;}
+.sched-time-inp::placeholder{color:var(--tx3);}
+.sched-text-inp{flex:1;border:none;background:transparent;outline:none;font-size:.76rem;font-family:inherit;color:var(--tx);}
+.sched-text-inp::placeholder{color:var(--tx3);}
+.sched-del{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:.82rem;padding:0 4px;opacity:0;transition:opacity .15s;flex-shrink:0;}
+.sched-item:hover .sched-del{opacity:1;}
+
 @media(max-width:660px){
   .dgrid{grid-template-columns:1fr;}
   .wgrid{grid-template-columns:repeat(2,1fr);}
@@ -323,6 +350,20 @@ select{font-family:inherit;}
 </head>
 <body>
 
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">나의 다이어리 2026</div>
+    <div class="lock-sub" id="lockSub">비밀번호를 입력하세요</div>
+    <input class="lock-inp" type="password" id="lockInp" placeholder="비밀번호" onkeydown="if(event.key==='Enter')lockSubmit()">
+    <input class="lock-inp" type="password" id="lockInp2" placeholder="비밀번호 확인" style="display:none" onkeydown="if(event.key==='Enter')lockSubmit()">
+    <div class="lock-err" id="lockErr"></div>
+    <button class="lock-btn" id="lockBtn" onclick="lockSubmit()">입력</button>
+    <div class="lock-hint" id="lockHint"></div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-logo">✦ 나의 다이어리 2026</div>
@@ -332,6 +373,7 @@ select{font-family:inherit;}
     <button class="ntab"     id="tab-look"       onclick="goView('look')">Daily Look</button>
     <button class="ntab"     id="tab-script"     onclick="goView('script')">Script</button>
   </div>
+  <button class="ntab" onclick="lockApp()" title="앱 잠금" style="margin-left:8px;">🔒</button>
 </nav>
 
 <!-- TOOLBAR -->
@@ -409,6 +451,11 @@ select{font-family:inherit;}
   <div class="cal" id="calEl"></div>
   <div class="wsec-t">주간 평가</div>
   <div class="wgrid" id="wgridEl"></div>
+  <div class="sched-wrap">
+    <div class="wsec-t" style="margin-top:20px;">월간 일정</div>
+    <div class="sched-list" id="schedEl"></div>
+    <button class="addbtn" onclick="addSched()">+ 일정 추가</button>
+  </div>
 </div>
 
 <!-- ══ DAILY ══ -->
@@ -734,7 +781,7 @@ function setupRte(id,key){
 // ════════════════════════════════════════════════
 //  MONTHLY
 // ════════════════════════════════════════════════
-function chMonth(d){CM+=d;if(CM<0){CM=11;CY--;}if(CM>11){CM=0;CY++;}renderCal();}
+function chMonth(d){CM+=d;if(CM<0){CM=11;CY--;}if(CM>11){CM=0;CY++;}renderCal();renderSched();}
 
 function renderCal(){
   document.getElementById('mtitle').textContent=CY+'년 '+MO[CM];
@@ -1503,6 +1550,137 @@ function confirmImport(){
 HL_CLS.push('sc-memo');
 
 // ════════════════════════════════════════════════
+//  PASSWORD LOCK
+// ════════════════════════════════════════════════
+let lockMode = 'enter';
+
+function initLock(){
+  const pw = localStorage.getItem('diary_pw');
+  if(!pw){
+    lockMode = 'set';
+    document.getElementById('lockSub').textContent = '처음 방문하셨군요!\n새 비밀번호를 설정해주세요.';
+    document.getElementById('lockInp').placeholder = '새 비밀번호 (4자 이상)';
+    document.getElementById('lockInp2').style.display = '';
+    document.getElementById('lockBtn').textContent = '비밀번호 설정';
+    document.getElementById('lockHint').textContent = '비밀번호는 이 기기에 저장됩니다.';
+  } else {
+    lockMode = 'enter';
+    document.getElementById('lockSub').textContent = '비밀번호를 입력하세요';
+    document.getElementById('lockInp').placeholder = '비밀번호';
+    document.getElementById('lockInp2').style.display = 'none';
+    document.getElementById('lockBtn').textContent = '입력';
+    document.getElementById('lockHint').textContent = '';
+  }
+  document.getElementById('lockScreen').style.display = 'flex';
+  setTimeout(()=>document.getElementById('lockInp').focus(), 100);
+}
+
+function lockSubmit(){
+  const inp = document.getElementById('lockInp').value;
+  const inp2 = document.getElementById('lockInp2').value;
+  const errEl = document.getElementById('lockErr');
+  errEl.textContent = '';
+  if(!inp){errEl.textContent='비밀번호를 입력해주세요.';return;}
+  if(lockMode === 'set'){
+    if(inp.length < 4){errEl.textContent='4자 이상으로 설정해주세요.';return;}
+    if(inp !== inp2){errEl.textContent='비밀번호가 일치하지 않아요.';return;}
+    localStorage.setItem('diary_pw', btoa(unescape(encodeURIComponent(inp))));
+    unlockApp();
+  } else {
+    const stored = localStorage.getItem('diary_pw');
+    if(btoa(unescape(encodeURIComponent(inp))) === stored){
+      unlockApp();
+    } else {
+      errEl.textContent = '비밀번호가 틀렸어요. 다시 입력해주세요.';
+      document.getElementById('lockInp').value = '';
+      document.getElementById('lockInp').focus();
+    }
+  }
+}
+
+function unlockApp(){
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('lockInp').value = '';
+  document.getElementById('lockInp2').value = '';
+  document.getElementById('lockErr').textContent = '';
+}
+
+function lockApp(){
+  lockMode = 'enter';
+  document.getElementById('lockSub').textContent = '비밀번호를 입력하세요';
+  document.getElementById('lockInp').placeholder = '비밀번호';
+  document.getElementById('lockInp').value = '';
+  document.getElementById('lockInp2').style.display = 'none';
+  document.getElementById('lockInp2').value = '';
+  document.getElementById('lockBtn').textContent = '입력';
+  document.getElementById('lockErr').textContent = '';
+  document.getElementById('lockHint').textContent = '';
+  document.getElementById('lockScreen').style.display = 'flex';
+  setTimeout(()=>document.getElementById('lockInp').focus(), 100);
+}
+
+// ════════════════════════════════════════════════
+//  MONTHLY SCHEDULE
+// ════════════════════════════════════════════════
+function schedK(){return `sched_${CY}_${CM}`;}
+
+function renderSched(){
+  const el = document.getElementById('schedEl');
+  if(!el) return;
+  el.innerHTML = '';
+  const k = schedK();
+  if(!DB[k]) DB[k] = [];
+  const days = new Date(CY, CM+1, 0).getDate();
+  DB[k].sort((a,b)=>a.day-b.day||(a.time||'').localeCompare(b.time||''));
+  DB[k].forEach((item,i)=>{
+    const row = document.createElement('div');
+    row.className = 'sched-item';
+    // day select
+    const sel = document.createElement('select');
+    sel.className = 'sched-date-sel';
+    for(let d=1;d<=days;d++){
+      const o=document.createElement('option');
+      o.value=d;
+      const dt=new Date(CY,CM,d);
+      o.textContent=`${d}일(${DW[dt.getDay()]})`;
+      if(d===item.day)o.selected=true;
+      sel.appendChild(o);
+    }
+    sel.onchange=()=>{item.day=parseInt(sel.value);renderSched();toast();};
+    // time input
+    const timeInp = document.createElement('input');
+    timeInp.type='time';timeInp.className='sched-time-inp';
+    timeInp.value=item.time||'';
+    timeInp.oninput=()=>{item.time=timeInp.value;toast();};
+    // text input
+    const textInp = document.createElement('input');
+    textInp.type='text';textInp.className='sched-text-inp';
+    textInp.value=item.text||'';textInp.placeholder='일정 내용을 입력하세요';
+    textInp.style.color=curC;
+    textInp.oninput=()=>{item.text=textInp.value;toast();};
+    // delete
+    const del = document.createElement('button');
+    del.className='sched-del';del.innerHTML='✕';del.title='삭제';
+    del.onclick=()=>{DB[k].splice(i,1);renderSched();toast();};
+    row.appendChild(sel);row.appendChild(timeInp);row.appendChild(textInp);row.appendChild(del);
+    el.appendChild(row);
+  });
+}
+
+function addSched(){
+  const k = schedK();
+  if(!DB[k]) DB[k] = [];
+  const today = new Date();
+  const day = (today.getFullYear()===CY && today.getMonth()===CM) ? today.getDate() : 1;
+  DB[k].push({day, time:'', text:''});
+  renderSched();
+  setTimeout(()=>{
+    const items = document.querySelectorAll('.sched-text-inp');
+    if(items.length) items[items.length-1].focus();
+  }, 30);
+}
+
+// ════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════
 (function(){
@@ -1510,8 +1688,10 @@ HL_CLS.push('sc-memo');
   CY=n.getFullYear();CM=n.getMonth();CD=n;
   pickHL('none');
   renderCal();
+  renderSched();
   renderDaily();
   initGeo();
+  initLock();
 })();
 </script>
 </body>
