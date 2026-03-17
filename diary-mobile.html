@@ -874,10 +874,9 @@ function renderCal(){
     });
     if(hasDailyEntry) cell.classList.add('has-entry');
 
-    // TAP → go to daily (not double-click!)
+    // TAP → add schedule for this day
     cell.addEventListener('click',()=>{
-      CD=new Date(CY,CM,d);
-      goView('daily');
+      addSched(d);
     });
     g.appendChild(cell);
   }
@@ -1502,17 +1501,16 @@ function renderSched(){
   });
 }
 
-function addSched(){
+function addSched(day){
   const k=schedK();
   if(!DB[k])DB[k]=[];
-  const today=new Date();
-  const day=(today.getFullYear()===CY&&today.getMonth()===CM)?today.getDate():1;
+  if(day==null){const today=new Date();day=(today.getFullYear()===CY&&today.getMonth()===CM)?today.getDate():1;}
   DB[k].push({day,time:'',text:''});
   renderSched();
   setTimeout(()=>{
     const items=document.querySelectorAll('.sched-text-inp');
-    if(items.length)items[items.length-1].focus();
-  },30);
+    if(items.length){items[items.length-1].focus();items[items.length-1].scrollIntoView({behavior:'smooth',block:'center'});}
+  },50);
 }
 
 // ════════════════════════════════════════════════
