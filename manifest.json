@@ -1,7 +1,7 @@
 {
-  "name": "Little Black",
-  "short_name": "Little Black",
-  "description": "Little Black — Monthly · Daily · Look · Script",
+  "name": "StillDay",
+  "short_name": "StillDay",
+  "description": "StillDay — Monthly · Daily · Look · Script",
   "start_url": "./diary-mobile.html",
   "scope": "./",
   "display": "standalone",

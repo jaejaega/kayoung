@@ -1,4 +1,4 @@
-// ✦ Little Black — Service Worker
+// ✦ StillDay — Service Worker
 const CACHE = 'diary2026-v5';
 const ASSETS = [
   './manifest.json',
