@@ -730,6 +730,19 @@ select{font-family:inherit;}
   </div>
 </div>
 
+<!-- CAL MEMO MODAL -->
+<div class="folder-modal-bg" id="calMemoModalBg" onclick="if(event.target===this)closeCalMemo()">
+  <div class="folder-modal">
+    <div class="modal-handle"></div>
+    <div class="folder-modal-title" id="calMemoTitle"></div>
+    <textarea class="folder-inp" id="calMemoInp" rows="3" placeholder="일정을 입력하세요…" style="resize:none;height:80px;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveCalMemo();}"></textarea>
+    <div class="folder-btns">
+      <button class="folder-cancel" onclick="closeCalMemo()">취소</button>
+      <button class="folder-ok" onclick="saveCalMemo()">저장</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toastEl">저장됨 ✓</div>
 
 <script>
@@ -874,9 +887,9 @@ function renderCal(){
     });
     if(hasDailyEntry) cell.classList.add('has-entry');
 
-    // TAP → add schedule for this day
+    // TAP → open cal memo modal
     cell.addEventListener('click',()=>{
-      addSched(d);
+      openCalMemo(d);
     });
     g.appendChild(cell);
   }
@@ -1386,6 +1399,30 @@ function confirmImport(){
     if(card){const qa=card.querySelector('.sc-quote');if(qa)qa.value=entry.quote;}
   }
   closeImportModal();toast('인용문 추가됨 ✓');
+}
+
+// ════════════════════════════════════════════════
+//  CAL MEMO MODAL
+// ════════════════════════════════════════════════
+let calMemoDay=null;
+function openCalMemo(d){
+  calMemoDay=d;
+  const k=`cal_${CY}_${CM}_${d}`;
+  const dt=new Date(CY,CM,d);
+  document.getElementById('calMemoTitle').textContent=`${CM+1}월 ${d}일 (${['일','월','화','수','목','금','토'][dt.getDay()]})`;
+  document.getElementById('calMemoInp').value=DB[k]||'';
+  document.getElementById('calMemoModalBg').classList.add('show');
+  setTimeout(()=>document.getElementById('calMemoInp').focus(),100);
+}
+function closeCalMemo(){document.getElementById('calMemoModalBg').classList.remove('show');calMemoDay=null;}
+function saveCalMemo(){
+  if(calMemoDay==null)return;
+  const k=`cal_${CY}_${CM}_${calMemoDay}`;
+  const val=document.getElementById('calMemoInp').value.trim();
+  if(val) DB[k]=val; else delete DB[k];
+  closeCalMemo();
+  renderCal();
+  saveAll();
 }
 
 // ════════════════════════════════════════════════
