@@ -736,6 +736,10 @@ select{font-family:inherit;}
     <div class="modal-handle"></div>
     <div class="folder-modal-title" id="calMemoTitle"></div>
     <textarea class="folder-inp" id="calMemoInp" rows="3" placeholder="일정을 입력하세요…" style="resize:none;height:80px;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveCalMemo();}"></textarea>
+    <div style="display:flex;gap:8px;margin:10px 0 4px;align-items:center;">
+      <span style="font-size:.72rem;color:var(--tx3);">색상</span>
+      <div id="calColorSwatches" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    </div>
     <div class="folder-btns">
       <button class="folder-cancel" onclick="closeCalMemo()">취소</button>
       <button class="folder-ok" onclick="saveCalMemo()">저장</button>
@@ -866,7 +870,11 @@ function renderCal(){
     // mini memo preview
     const k=`cal_${CY}_${CM}_${d}`;
     if(DB[k]){
-      const memo=document.createElement('div');memo.className='cc-memo';memo.textContent=DB[k];
+      const saved=DB[k];
+      const text=typeof saved==='string'?saved:saved.text;
+      const color=typeof saved==='object'&&saved.color?saved.color:null;
+      const memo=document.createElement('div');memo.className='cc-memo';memo.textContent=text;
+      if(color)memo.style.color=color;
       cell.appendChild(memo);
     }
     // look badge
@@ -1404,13 +1412,34 @@ function confirmImport(){
 // ════════════════════════════════════════════════
 //  CAL MEMO MODAL
 // ════════════════════════════════════════════════
-let calMemoDay=null;
+const CAL_COLORS=[
+  {c:'#888',label:'기본'},
+  {c:'#e05555',label:'빨강'},
+  {c:'#e07a30',label:'주황'},
+  {c:'#c9a800',label:'노랑'},
+  {c:'#3aaa6a',label:'초록'},
+  {c:'#3a8fdd',label:'파랑'},
+  {c:'#9b6fdd',label:'보라'},
+  {c:'#d46fa0',label:'핑크'},
+];
+let calMemoDay=null, calMemoColor='#888';
 function openCalMemo(d){
   calMemoDay=d;
   const k=`cal_${CY}_${CM}_${d}`;
   const dt=new Date(CY,CM,d);
+  const saved=DB[k];
+  const text=saved?(typeof saved==='string'?saved:saved.text):'';
+  calMemoColor=saved&&typeof saved==='object'&&saved.color?saved.color:'#888';
   document.getElementById('calMemoTitle').textContent=`${CM+1}월 ${d}일 (${['일','월','화','수','목','금','토'][dt.getDay()]})`;
-  document.getElementById('calMemoInp').value=DB[k]||'';
+  document.getElementById('calMemoInp').value=text;
+  // 색상 스와치 렌더
+  const sw=document.getElementById('calColorSwatches');sw.innerHTML='';
+  CAL_COLORS.forEach(({c})=>{
+    const btn=document.createElement('button');
+    btn.style.cssText=`width:22px;height:22px;border-radius:50%;background:${c};border:3px solid ${c===calMemoColor?'var(--tx)':'transparent'};cursor:pointer;padding:0;flex-shrink:0;`;
+    btn.onclick=()=>{calMemoColor=c;sw.querySelectorAll('button').forEach(b=>b.style.borderColor='transparent');btn.style.borderColor='var(--tx)';};
+    sw.appendChild(btn);
+  });
   document.getElementById('calMemoModalBg').classList.add('show');
   setTimeout(()=>document.getElementById('calMemoInp').focus(),100);
 }
@@ -1419,7 +1448,7 @@ function saveCalMemo(){
   if(calMemoDay==null)return;
   const k=`cal_${CY}_${CM}_${calMemoDay}`;
   const val=document.getElementById('calMemoInp').value.trim();
-  if(val) DB[k]=val; else delete DB[k];
+  if(val) DB[k]={text:val,color:calMemoColor}; else delete DB[k];
   closeCalMemo();
   renderCal();
   saveAll();
