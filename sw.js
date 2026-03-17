@@ -1,5 +1,5 @@
 // ✦ Little Black — Service Worker
-const CACHE = 'diary2026-v3';
+const CACHE = 'diary2026-v4';
 const ASSETS = [
   './diary-mobile.html',
   './manifest.json',
