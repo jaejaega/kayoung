@@ -1,7 +1,6 @@
 // ✦ Little Black — Service Worker
-const CACHE = 'diary2026-v4';
+const CACHE = 'diary2026-v5';
 const ASSETS = [
-  './diary-mobile.html',
   './manifest.json',
   './icon.svg',
   './icon-192.png',
@@ -9,12 +8,12 @@ const ASSETS = [
   'https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap'
 ];
 
-// 설치: 핵심 파일 캐싱
+// 설치: 핵심 파일 캐싱 (HTML 제외)
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(cache =>
       cache.addAll(ASSETS.filter(url => !url.startsWith('https://fonts')))
-        .catch(() => {}) // 폰트 등 외부 리소스 실패 무시
+        .catch(() => {})
     ).then(() => self.skipWaiting())
   );
 });
@@ -28,8 +27,20 @@ self.addEventListener('activate', e => {
   );
 });
 
-// 요청: 캐시 우선, 없으면 네트워크
+// 요청: HTML은 항상 네트워크 우선, 나머지는 캐시 우선
 self.addEventListener('fetch', e => {
+  if (e.request.url.includes('.html')) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
