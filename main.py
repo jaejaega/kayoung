@@ -16,8 +16,8 @@ app.secret_key = 'volunteer-system-secret-key-2024'
 
 # 데이터베이스 및 비즈니스 로직 초기화
 db = DatabaseManager()
-volunteer_service = VolunteerService(db)
-attendance_service = AttendanceService(db)
+volunteer_service = VolunteerService()
+attendance_service = AttendanceService()
 
 
 def login_required(f):
@@ -79,13 +79,15 @@ def check_in():
     if not location_id:
         return jsonify({'error': '봉사처를 선택해주세요.'}), 400
 
-    record_id = attendance_service.check_in(volunteer_id, location_id)
-
-    return jsonify({
-        'success': True,
-        'record_id': record_id,
-        'check_in_time': datetime.now().isoformat()
-    })
+    try:
+        result = attendance_service.check_in(volunteer_id, location_id)
+        return jsonify({
+            'success': True,
+            'record_id': result['record_id'],
+            'check_in_time': result['check_in_time']
+        })
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
 
 @app.route('/api/attendance/check-out', methods=['POST'])
@@ -96,9 +98,14 @@ def check_out():
     data = request.json
     notes = data.get('notes', '')
 
-    attendance_service.check_out(volunteer_id, notes)
-
-    return jsonify({'success': True})
+    try:
+        result = attendance_service.check_out(volunteer_id)
+        # 필요시 notes를 데이터베이스에 저장
+        if notes:
+            db.update_attendance_record(result['record_id'], notes=notes)
+        return jsonify({'success': True})
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
 
 @app.route('/api/attendance/today', methods=['GET'])
@@ -131,15 +138,14 @@ def register_volunteer():
 
     data = request.json
     try:
-        volunteer_id = volunteer_service.register_volunteer(
+        result = volunteer_service.register_volunteer(
             name=data.get('name'),
             gender=data.get('gender'),
             birth_date=data.get('birth_date'),
             organization=data.get('organization'),
-            phone_number=data.get('phone_number'),
-            pin_number=data.get('pin_number')
+            phone_number=data.get('phone_number')
         )
-        return jsonify({'success': True, 'volunteer_id': volunteer_id})
+        return jsonify({'success': True, 'volunteer_id': result['id'], 'pin': result['pin_number']})
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 

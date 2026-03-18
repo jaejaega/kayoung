@@ -282,13 +282,15 @@ async function loadVolunteers() {
 
 // 자원봉사자 등록
 async function registerVolunteer() {
+    const genderValue = document.getElementById('reg-gender').value;
+    const genderMap = { '남': 'M', '여': 'F' };
+
     const data = {
         name: document.getElementById('reg-name').value,
-        gender: document.getElementById('reg-gender').value,
+        gender: genderMap[genderValue] || genderValue,
         birth_date: document.getElementById('reg-birth').value,
         organization: document.getElementById('reg-organization').value,
-        phone_number: document.getElementById('reg-phone').value,
-        pin_number: document.getElementById('reg-pin').value
+        phone_number: document.getElementById('reg-phone').value
     };
 
     const result = await apiCall('/api/volunteers/register', 'POST', data);
