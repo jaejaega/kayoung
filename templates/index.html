@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자원봉사자 출퇴근 관리 시스템</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="app">
+        <!-- 로그인 페이지 -->
+        <div id="login-page" class="page">
+            <div class="login-container">
+                <h1>자원봉사자 출퇴근 관리</h1>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="pin">PIN 번호</label>
+                        <input type="text" id="pin" placeholder="PIN 번호를 입력하세요" maxlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">비밀번호 (관리자)</label>
+                        <input type="password" id="password" placeholder="비밀번호는 선택사항입니다">
+                    </div>
+                    <button id="login-btn" class="btn btn-primary">로그인</button>
+                    <p class="login-error" id="login-error"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 일반 사용자 페이지 -->
+        <div id="user-page" class="page" style="display:none;">
+            <header>
+                <h1>자원봉사자 출퇴근 시스템</h1>
+                <button id="logout-btn" class="btn btn-secondary">로그아웃</button>
+            </header>
+
+            <div class="container">
+                <div class="welcome-box">
+                    <p>환영합니다, <strong id="user-name"></strong>님!</p>
+                </div>
+
+                <div class="attendance-section">
+                    <div class="location-select">
+                        <label for="location">봉사처 선택</label>
+                        <select id="location">
+                            <option value="">봉사처를 선택하세요</option>
+                        </select>
+                    </div>
+
+                    <div class="attendance-status">
+                        <p id="status-text">상태: 미로그인</p>
+                        <p id="check-in-time">출근 시간: -</p>
+                        <p id="elapsed-time">경과 시간: -</p>
+                    </div>
+
+                    <div class="attendance-buttons">
+                        <button id="check-in-btn" class="btn btn-success">출근</button>
+                        <button id="check-out-btn" class="btn btn-danger" disabled>퇴근</button>
+                    </div>
+
+                    <div class="notes-section">
+                        <label for="notes">특이사항</label>
+                        <textarea id="notes" placeholder="퇴근시 입력해주세요"></textarea>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h2>통계</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <p class="stat-label">방문 횟수</p>
+                            <p class="stat-value" id="visit-count">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">총 봉사 시간</p>
+                            <p class="stat-value" id="total-hours">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <p class="stat-label">마지막 방문</p>
+                            <p class="stat-value" id="last-visit">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 관리자 페이지 -->
+        <div id="admin-page" class="page" style="display:none;">
+            <header>
+                <h1>관리자 페이지</h1>
+                <button id="admin-logout-btn" class="btn btn-secondary">로그아웃</button>
+            </header>
+
+            <div class="container">
+                <nav class="admin-nav">
+                    <button class="nav-btn active" data-tab="volunteers">자원봉사자 관리</button>
+                    <button class="nav-btn" data-tab="register">새 자원봉사자 등록</button>
+                    <button class="nav-btn" data-tab="reports">보고서</button>
+                </nav>
+
+                <!-- 자원봉사자 목록 탭 -->
+                <div id="volunteers-tab" class="tab-content active">
+                    <h2>자원봉사자 목록</h2>
+                    <div id="volunteers-list" class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>이름</th>
+                                    <th>전화</th>
+                                    <th>조직</th>
+                                    <th>등록일</th>
+                                    <th>상태</th>
+                                </tr>
+                            </thead>
+                            <tbody id="volunteers-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 등록 탭 -->
+                <div id="register-tab" class="tab-content">
+                    <h2>새 자원봉사자 등록</h2>
+                    <form id="register-form" class="form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reg-name">이름</label>
+                                <input type="text" id="reg-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-gender">성별</label>
+                                <select id="reg-gender" required>
+                                    <option value="">선택</option>
+                                    <option value="남">남</option>
+                                    <option value="여">여</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reg-birth">생년월일</label>
+                                <input type="date" id="reg-birth" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-organization">조직</label>
+                                <input type="text" id="reg-organization" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reg-phone">전화번호</label>
+                                <input type="tel" id="reg-phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-pin">PIN 번호</label>
+                                <input type="text" id="reg-pin" maxlength="6" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">등록</button>
+                        <p class="form-message" id="register-message"></p>
+                    </form>
+                </div>
+
+                <!-- 보고서 탭 -->
+                <div id="reports-tab" class="tab-content">
+                    <h2>보고서</h2>
+                    <p>보고서 기능은 추후 추가됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
